@@ -15,21 +15,31 @@ car_manager = CarManager()
 scoreboard = Scoreboard()
 
 
-
+# Listen for keypresses and move the player
 screen.listen()
-screen.onkey(player.move, "Up")
+screen.onkey(player.go_up, "Up")
 
 
 
 game_is_on = True
 while game_is_on:
-    counter = 0
     time.sleep(0.1)
     screen.update()
-    if counter % 10 == 0:
-        car_manager.create_car()
-    counter += 1
+   
+    car_manager.create_car()
     car_manager.move_cars()
     
-    if car_manager.all_cars:  # Make sure the list isn't empty
-        random.choice(car_manager.all_cars).forward(car_manager.car_speed)
+    # Detect collision with car
+    for car in car_manager.all_cars:
+        if car.distance(player) < 20:
+            game_is_on = False
+            scoreboard.game_over()
+    
+    # Detect successful crossing
+    if player.is_at_finish_line():
+        player.reset_position()
+        car_manager.level_up()
+        scoreboard.increase_level()
+
+
+screen.exitonclick()
